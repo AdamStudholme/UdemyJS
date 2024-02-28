@@ -317,7 +317,7 @@ EV.prototype.accelerate = function () {
   this.speed += 20;
   --this.charge;
   console.log(
-    `This ${this.make} is travelling at ${this.speed} and has ${this.charge}`
+    `This ${this.make} is traveling at ${this.speed} and has ${this.charge}`
   );
 };
 
@@ -331,7 +331,7 @@ tesla.accelerate();
 tesla.chargeBattery(80);
 tesla.accelerate();
 tesla.brake();
-*/
+
 
 // -------- Video 221 - Inheritance between Classes (ES6) ----------------
 
@@ -395,3 +395,221 @@ const martha = new StudentCl('Martha Jones', 2004, 'Computer Science');
 
 martha.introduce();
 martha.calcAge();
+
+
+
+// ------------ Video 222 - Inheritance between 'classes' Object.Create() ----------
+
+const PersonProto = {
+  calcAge() {
+    return new Date().getFullYear() - this.birthYear;
+  },
+  init(firstName, birthYear) {
+    this.firstName = firstName;
+    this.birthYear = birthYear;
+  },
+};
+
+const steven = Object.create(PersonProto);
+
+// The student proto inherits it proto from PersonProto
+const StudentProto = Object.create(PersonProto);
+StudentProto.init = function (firstName, birthYear, course) {
+  PersonProto.init.call(this, firstName, birthYear);
+  this.course = course;
+};
+
+StudentProto.introduce = function () {
+  console.log(`My name is ${this.firstName} and I study ${this.course}`);
+};
+
+// The jay inherits it proto from StudentProto which inherits from PersonProto
+const jay = Object.create(StudentProto);
+
+jay.init('Jay', 2000, 'Computer Science');
+
+jay.introduce();
+console.log(jay.calcAge());
+
+
+//------------------ Video 223 - Another class example -----------
+// ----------------- Video 224 - Encapsulation Protected Properties and Methods -----
+
+class Account {
+  constructor(owner, currency, pin) {
+    this.owner = owner;
+    this.currency = currency;
+    //Protected property
+    this._pin = pin;
+    //You can add variables to a constructor that do not require any argument
+    //Protected property (using the '_') lets devs know the property is not to be touched outside of class
+    this._movements = [];
+    this.locale = navigator.language;
+    // You can add anything you want to happen on intialization
+    console.log(`Thanks for opening an account ${this.owner}`);
+  }
+  //Public interface (API) for the object.
+  getMovements() {
+    return this._movements;
+  }
+
+  deposit(val) {
+    this._movements.push(val);
+  }
+  withdraw(val) {
+    this.deposit(-val);
+  }
+  _approveLoan(val) {
+    return true;
+  }
+
+  requestLoan(val) {
+    if (this._approveLoan(val)) {
+      this.deposit(val);
+      console.log('Loan Approved');
+    }
+  }
+}
+
+const acc1 = new Account('Adam', 'GBP', 1234);
+
+acc1.deposit(250);
+acc1.withdraw(140);
+
+console.log(acc1);
+
+
+// --------------------- Video 225 - Truly Private class fields and Methods ----------------------
+// 1)Public fields
+//2) private fields
+//3) Public methods
+//4) Private methods
+
+class Account {
+  //1) Public fields (instances)
+  locale = navigator.language;
+
+  //2) Private fields
+  #movements = [];
+  #pin;
+
+  constructor(owner, currency, pin) {
+    this.owner = owner;
+    this.currency = currency;
+    this.#pin = pin;
+    // You can add anything you want to happen on intialization
+    console.log(`Thanks for opening an account ${this.owner}`);
+  }
+  //Public interface (API) for the object.
+  getMovements() {
+    return this.#movements;
+  }
+
+  deposit(val) {
+    this.#movements.push(val);
+    return this; // Added for chaining purposes
+  }
+  withdraw(val) {
+    this.deposit(-val);
+    return this;
+  }
+
+  requestLoan(val) {
+    if (this.#approveLoan(val)) {
+      this.deposit(val);
+      console.log('Loan Approved');
+      return this;
+    }
+  }
+
+  // 4) Private Methods - Currently not fully supported
+  #approveLoan(val) {
+    return true;
+  }
+}
+
+const acc1 = new Account('Adam', 'GBP', 1234);
+
+acc1.deposit(250);
+acc1.withdraw(140);
+acc1.requestLoan(500);
+//console.log(acc1.#movements); // This now throws an error as movements is a private field
+
+//------------ Video 226 - Chaining Methods -------------------
+// To enable chaining of object methods you need to return the object in the methods so the next method knows what
+// it is acting on
+console.log(
+  acc1
+    .deposit(300)
+    .deposit(500)
+    .withdraw(35)
+    .requestLoan(25000)
+    .withdraw(5000)
+    .getMovements()
+);
+*/
+
+// ---------------- Coding Challenge #4 -----------------------
+
+class CarCl {
+  constructor(make, speed) {
+    this.make = make;
+    this.speed = speed;
+  }
+
+  accelerate() {
+    this.speed += 10;
+    console.log(this.speed);
+    return this;
+  }
+  brake() {
+    this.speed -= 5;
+    console.log(this.speed);
+    return this;
+  }
+
+  get speedUS() {
+    return this.speed / 1.6;
+  }
+
+  set speedUS(speed) {
+    this.speed = speed * 1.6;
+  }
+}
+
+class EVCl extends CarCl {
+  // Make charge a private property
+  #charge;
+
+  constructor(make, speed, charge) {
+    super(make, speed);
+    this.#charge = charge;
+  }
+
+  // Ability to chain chargeBattery , accelerate and brake methods
+  accelerate() {
+    this.speed += 20;
+    --this.#charge;
+    console.log(
+      `This ${this.make} is traveling at ${this.speed} and has ${
+        this.#charge
+      }% battery.`
+    );
+    return this;
+  }
+
+  chargeBattery(chargeTo) {
+    this.#charge = chargeTo;
+    console.log(`Battery charged to ${this.#charge}%`);
+    return this;
+  }
+}
+
+// Test class functionality
+
+const rivian = new EVCl('Rivian', 120, 23);
+console.log(rivian);
+
+console.log(rivian.accelerate().accelerate().brake().accelerate().accelerate());
+
+console.log(rivian.speedUS);
