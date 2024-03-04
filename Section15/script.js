@@ -1,6 +1,7 @@
 'use strict';
 
 const form = document.querySelector('.form');
+const formInput = document.querySelectorAll('.form__input');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
 const inputDistance = document.querySelector('.form__input--distance');
@@ -69,14 +70,18 @@ class App {
   #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
+  #isEditActivity = false;
 
   constructor() {
     //Get user's position
     this._getPosition(); // putting the function in the constructor means it will get call on any creation of an App object
     //Attach event handlers
-    form.addEventListener('submit', this._newWorkout.bind(this));
+    form.addEventListener('submit', this._saveWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
-    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+    containerWorkouts.addEventListener(
+      'click',
+      this._workoutClicked.bind(this)
+    );
     //Get stored data
     this._getLocalStorage();
   }
@@ -116,7 +121,7 @@ class App {
   }
 
   _showForm(mapE) {
-    this.#mapEvent = mapE; // Making mapE global
+    if (!this.#isEditActivity) this.#mapEvent = mapE; // Making mapE global
     form.classList.remove('hidden'); // Remove hidden class from form
     inputDistance.focus(); //Focus on first input field on form
   }
@@ -129,7 +134,7 @@ class App {
       inputElevation.value =
         '';
     form.style.display = 'none'; // Hide form to prevent animation being visible
-    form.classList.add('hidden'); // Remove hidden class from form}
+    form.classList.add('hidden'); // Remove hidden class from form
     setTimeout(() => (form.style.display = 'grid'), 1000); // Once animation has finished add the display back to form
   }
 
@@ -138,7 +143,7 @@ class App {
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
-  _newWorkout(e) {
+  _saveWorkout(e) {
     //Helper function to validate any given number of inputs are numbers
     const validInputs = (...inputs) =>
       inputs.every(inp => Number.isFinite(inp));
@@ -217,20 +222,22 @@ class App {
     //Shared HTML between running and cycling
     let html = `<li class="workout workout--${workout.type}" data-id="${
       workout.id
-    }">
-    <h2 class="workout__title">${workout.description}</h2>
-    <div class="workout__details">
-      <span class="workout__icon">${
-        workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
-      }</span>
-      <span class="workout__value">${workout.distance}</span>
-      <span class="workout__unit">km</span>
-    </div>
-    <div class="workout__details">
-      <span class="workout__icon">⏱</span>
-      <span class="workout__value">${workout.duration}</span>
-      <span class="workout__unit">min</span>
-    </div>`;
+    }">    
+      <h2 class="workout__title">${
+        workout.description
+      }<button class="btn btn__edit_workout">Edit</button></h2>
+      <div class="workout__details">
+        <span class="workout__icon">${
+          workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
+        }</span>
+        <span class="workout__value">${workout.distance}</span>
+        <span class="workout__unit">km</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⏱</span>
+        <span class="workout__value">${workout.duration}</span>
+        <span class="workout__unit">min</span>
+      </div>`;
     //HTML unique to running
     if (workout.type === 'running')
       html += `<div class="workout__details">
@@ -242,8 +249,7 @@ class App {
         <span class="workout__icon">🦶🏼</span>
         <span class="workout__value">${workout.cadence}</span>
         <span class="workout__unit">spm</span>
-      </div>
-    </li>`;
+      </div>`;
 
     //HTML unique to cycling
     if (workout.type === 'cycling')
@@ -256,10 +262,17 @@ class App {
         <span class="workout__icon">⛰</span>
         <span class="workout__value">${workout.elevation}</span>
         <span class="workout__unit">m</span>
-      </div>
-    </li>`;
+      </div>`;
+
+    html += '</li>';
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  // function that handles click on workout list and controls which method is called depending on click location
+  _workoutClicked(e) {
+    this._moveToPopup(e);
+    if (e.target.closest('.btn__edit_workout')) this._editWorkout(e);
   }
 
   // Move to pop up function
@@ -278,6 +291,30 @@ class App {
     workout.click();
   }
 
+  _editWorkout(e) {
+    const workoutEl = e.target.closest('.workout');
+    const workout = this.#workouts.find(
+      work => work.id === e.target.closest('.workout').dataset.id
+    );
+    this.#isEditActivity = true;
+    workoutEl.classList.add('hidden');
+    inputType.value = workout.type;
+    inputDistance.value = workout.distance;
+    inputDuration.value = workout.duration;
+    if (workout.type === 'running') {
+      inputCadence.value = workout.cadence;
+    }
+    if (workout.type === 'cycling') {
+      inputElevation.value = workout.elevation;
+      this._toggleElevationField();
+    }
+    this._showForm();
+  }
+
+  _deleteWorkout() {}
+
+  _deleteAllWorkouts() {}
+
   _setLocalStorage() {
     localStorage.setItem('workouts', JSON.stringify(this.#workouts)); // Local storage is a simple API so only use for small amounts of data
   }
@@ -285,10 +322,17 @@ class App {
   _getLocalStorage() {
     const data = JSON.parse(localStorage.getItem('workouts'));
     if (!data) return;
-    this.#workouts = data;
 
+    this.#workouts = data;
     this.#workouts.forEach(work => {
+      //Set object prototypes when retrieving from local storage
+      if (work.type === 'running')
+        work.__proto__ = Object.create(Running.prototype);
+      if (work.type === 'cycling')
+        work.__proto__ = Object.create(Cycling.prototype);
       this._renderWorkout(work);
+
+      console.log(work);
     });
   }
 
