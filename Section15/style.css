@@ -121,13 +121,13 @@ a:visited {
   padding: 1.5rem 2.75rem;
   margin-bottom: 1.75rem;
 
-  display: grid;
+  /* display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem 2.5rem;
 
   /* Match height and activity boxes */
-  height: 9.25rem;
-  transition: all 0.5s, transform 1ms;
+  /* height: 9.25rem; */
+  /* 8transition: all 0.5s, transform 1ms; */ */
 }
 
 .form.hidden {
@@ -247,4 +247,28 @@ a:visited {
 
 .btn__edit_workout {
   margin-left: 122px;
+}
+
+.form_inputs {
+  background-color: var(--color-dark--2);
+  border-radius: 5px;
+  padding: 1.5rem 2.75rem;
+  margin-bottom: 1.75rem;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 2.5rem;
+
+  /* Match height and activity boxes */
+  /* height: 9.25rem; */
+  transition: all 0.5s, transform 1ms;
+}
+
+.form__header {
+  display: flex;
+  align-items: center;
+}
+
+.form__header--hidden {
+  display: none;
 }
