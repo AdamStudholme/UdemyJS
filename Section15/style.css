@@ -272,3 +272,7 @@ a:visited {
 .form__header--hidden {
   display: none;
 }
+
+.btn__edit_workout--hidden{
+  display: none;
+}
