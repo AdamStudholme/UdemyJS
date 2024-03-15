@@ -1,5 +1,7 @@
 //Importing Module
 import 'core-js/actual';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 // Importing statements are hoisted to the top of the file. Even if it is placed lower down in the code block it will be executed first
 //import { addToCart, totalPrice as price, totalQty } from './shoppingCart.js';
 console.log('importing module');
@@ -103,7 +105,7 @@ console.log(stateClone); // This clone still has the same end points as state. S
 const stateDeepClone = cloneDeep(state);
 console.log(stateDeepClone);
 
-state.user.loggedIn = false;
+state.user.loggedIn = true;
 
 //This is a Parcel command which will inject new version of a module into the browser without changing the browser state
 if (module.hot) {
