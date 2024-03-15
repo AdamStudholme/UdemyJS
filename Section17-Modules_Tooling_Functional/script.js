@@ -1,5 +1,4 @@
 //Importing Module
-import 'core-js/actual';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 // Importing statements are hoisted to the top of the file. Even if it is placed lower down in the code block it will be executed first
@@ -123,3 +122,4 @@ class Person {
 const adam = new Person('Adam');
 
 console.log(ShoppingCart.cart.find(el => el.qty >= 2));
+Promise.resolve('TESTSTRING'), then(t => console.log(t));
