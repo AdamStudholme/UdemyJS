@@ -1,6 +1,8 @@
 //Importing Module
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+import './style.css';
+
 // Importing statements are hoisted to the top of the file. Even if it is placed lower down in the code block it will be executed first
 //import { addToCart, totalPrice as price, totalQty } from './shoppingCart.js';
 console.log('importing module');
