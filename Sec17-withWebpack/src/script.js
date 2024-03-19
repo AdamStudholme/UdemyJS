@@ -1,7 +1,6 @@
 //Importing Module
-import 'core-js/stable';
+import 'node_modules/core-js/stable';
 import 'regenerator-runtime/runtime';
-import './style.css';
 
 // Importing statements are hoisted to the top of the file. Even if it is placed lower down in the code block it will be executed first
 //import { addToCart, totalPrice as price, totalQty } from './shoppingCart.js';
@@ -89,7 +88,7 @@ export.addToCart = function (prod, qty) {
 ////////////////////  Using NPM to use 3rd party libraries from npm //////////////////////////////
 
 //import cloneDeep from './node_modules/lodash-es/cloneDeep.js';
-import cloneDeep from 'lodash-es'; // Parcel will automatically find route to package without full path
+import cloneDeep from '../node_modules/lodash-es'; // Parcel will automatically find route to package without full path
 
 const state = {
   cart: [
