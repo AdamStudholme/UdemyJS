@@ -17,10 +17,12 @@ const controlRecipes = async function () {
     const id = window.location.hash.slice(1);
     if (!id) return; //Guard clause if the url doesn't have a recipe hash
     recipeView.renderSpinner();
+
+    //0) Update results view to mark selected recipe
+    resultsView.update(model.getSearchResultsPage());
     //1) Loading Recipe
     await model.loadRecipe(id);
     const { recipe } = model.state;
-
     //2) Render Recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
@@ -55,8 +57,17 @@ const controlPagination = function (page) {
   paginationView.render(model.state.search);
 };
 
+const controlServings = function (newServings) {
+  // Update the recipe servings (in state)
+  model.updateServings(newServings);
+  // Update the recipeView
+  // recipeView.render(model.state.recipe);
+  recipeView.update(model.state.recipe);
+};
+
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
+  recipeView.addHandlerUpdateServings(controlServings);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerPagination(controlPagination);
 };

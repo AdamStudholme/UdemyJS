@@ -3,8 +3,6 @@ import icons from 'url:../../img/icons.svg';
 export default class View {
   _data;
   render(data) {
-    console.log(data);
-
     if (!data || (Array.isArray(data) && data.length === 0))
       // No data or the data is an empty array
       return this.renderError();
@@ -53,5 +51,31 @@ export default class View {
       </div>`;
     this._clear();
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  update(data) {
+    this._data = data;
+    const newMarkup = this._generateMarkup();
+
+    const newDOM = document.createRange().createContextualFragment(newMarkup);
+    const newElements = Array.from(newDOM.querySelectorAll('*'));
+    const curElements = Array.from(this._parentElement.querySelectorAll('*'));
+
+    newElements.forEach((newEl, i) => {
+      const curEl = curElements[i];
+      //Updates changed text
+      if (
+        // Check if there has been a change in the node, and if the node is a text node, as we only want to change textcontent
+        !newEl.isEqualNode(curEl) &&
+        newEl.firstChild?.nodeValue.trim() !== ''
+      ) {
+        curEl.textContent = newEl.textContent;
+      }
+      //Updates changed attributes
+      if (!newEl.isEqualNode(curEl))
+        Array.from(newEl.attributes).forEach(attr =>
+          curEl.setAttribute(attr.name, attr.value)
+        );
+    });
   }
 }
